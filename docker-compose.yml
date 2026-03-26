@@ -1,0 +1,52 @@
+services:
+  spark-jupyter:
+    build:
+      context: .
+      dockerfile: docker/spark/Dockerfile
+    container_name: spark-jupyter
+    ports:
+      - "8888:8888"   # JupyterLab
+      - "4040:4040"   # Spark UI
+    volumes:
+      - ./notebooks:/home/jovyan/notebooks
+      - ./src:/home/jovyan/src
+      - ./data:/home/jovyan/data
+      - ./scripts:/home/jovyan/scripts
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - SPARK_DRIVER_MEMORY=${SPARK_DRIVER_MEMORY:-1g}
+      - SPARK_EXECUTOR_MEMORY=${SPARK_EXECUTOR_MEMORY:-512m}
+      - SPARK_LOCAL_DIRS=/tmp/spark
+      - DELTA_LAKE_VERSION=3.2.0
+    env_file:
+      - .env
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+          cpus: "4"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: docker/streamlit/Dockerfile
+    container_name: streamlit-dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./dashboard:/app/dashboard
+      - ./data/delta/gold:/app/data/gold:ro
+      - ./src:/app/src
+    environment:
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+    env_file:
+      - .env
+    depends_on:
+      spark-jupyter:
+        condition: service_healthy

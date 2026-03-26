@@ -1,0 +1,40 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# === Jupyter ===
+.ipynb_checkpoints/
+*.ipynb_metadata/
+
+# === Data (no subir datos pesados) ===
+data/raw/*.csv
+data/raw/*.parquet
+data/delta/bronze/
+data/delta/silver/
+data/delta/gold/
+
+# === Spark ===
+spark-warehouse/
+metastore_db/
+derby.log
+/tmp/spark/
+/tmp/spark-events/
+
+# === Environment ===
+.env
+.venv/
+venv/
+
+# === IDE ===
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# === OS ===
+.DS_Store
+Thumbs.db
