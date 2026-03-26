@@ -285,7 +285,7 @@ SparkFlow_Delta_Pipeline/
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/<tu-usuario>/SparkFlow-Delta-Pipeline.git
+git clone https://github.com/Ares-infenus/SparkFlow-Delta-Pipeline.git
 cd SparkFlow-Delta-Pipeline
 
 # 2. Crear archivo de configuración

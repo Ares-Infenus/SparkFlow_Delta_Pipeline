@@ -17,7 +17,7 @@ Gracias por tu interés en contribuir a **SparkFlow Delta Pipeline**. Esta guía
 
 ```bash
 # 1. Fork y clonar
-git clone https://github.com/<tu-usuario>/SparkFlow-Delta-Pipeline.git
+git clone https://github.com/Ares-infenus/SparkFlow-Delta-Pipeline.git
 cd SparkFlow-Delta-Pipeline
 
 # 2. Crear entorno virtual
@@ -136,4 +136,4 @@ git commit -m "feat: agregar regla de detección por geolocalización"
 
 ## ❓ ¿Preguntas?
 
-Abre un [issue](https://github.com/<tu-usuario>/SparkFlow-Delta-Pipeline/issues) y te responderemos.
+Abre un [issue](https://github.com/Ares-infenus/SparkFlow-Delta-Pipeline/issues) y te responderemos.
