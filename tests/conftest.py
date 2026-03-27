@@ -1,13 +1,14 @@
 """Shared fixtures for PySpark tests."""
 
 import pytest
+from delta import configure_spark_with_delta_pip
 from pyspark.sql import SparkSession
 
 
 @pytest.fixture(scope="session")
 def spark():
     """Create a SparkSession for testing with Delta Lake support."""
-    session = (
+    builder = (
         SparkSession.builder.master("local[2]")
         .appName("test-bigdata-fraud")
         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
@@ -19,7 +20,7 @@ def spark():
         .config("spark.default.parallelism", "4")
         .config("spark.ui.enabled", "false")
         .config("spark.driver.memory", "2g")
-        .getOrCreate()
     )
+    session = configure_spark_with_delta_pip(builder).getOrCreate()
     yield session
     session.stop()
