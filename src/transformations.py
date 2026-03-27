@@ -96,7 +96,7 @@ def enrich_with_merchants(
 ) -> DataFrame:
     """Enriquece transacciones con información de merchants via broadcast join."""
     # Eliminar columnas duplicadas del merchants_df antes del join
-    cols_to_drop = set(transactions_df.columns) & set(merchants_df.columns) - {"merchant_id"}
+    cols_to_drop = (set(transactions_df.columns) & set(merchants_df.columns)) - {"merchant_id"}
     merchants_clean = merchants_df.drop(*cols_to_drop)
     return transactions_df.join(
         F.broadcast(merchants_clean),
