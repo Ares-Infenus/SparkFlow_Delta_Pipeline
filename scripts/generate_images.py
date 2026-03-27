@@ -8,123 +8,252 @@ OUTPUT_DIR = Path(__file__).parent.parent / "docs" / "images"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def _draw_rounded_rect(fig, x0, y0, x1, y1, fill, border, width=2, radius=0.15):
+    """Dibuja un rectángulo con esquinas redondeadas usando un path SVG."""
+    r = radius
+    fig.add_shape(
+        type="path",
+        path=(
+            f"M {x0+r},{y0} "
+            f"L {x1-r},{y0} Q {x1},{y0} {x1},{y0+r} "
+            f"L {x1},{y1-r} Q {x1},{y1} {x1-r},{y1} "
+            f"L {x0+r},{y1} Q {x0},{y1} {x0},{y1-r} "
+            f"L {x0},{y0+r} Q {x0},{y0} {x0+r},{y0} Z"
+        ),
+        fillcolor=fill,
+        line=dict(color=border, width=width),
+        layer="below",
+    )
+
+
 def generate_data_flow():
     """Genera el diagrama de flujo de datos Bronze → Silver → Gold → Dashboard."""
     fig = go.Figure()
 
-    # Configuración del canvas
+    W = 1400
+    H = 700
+
     fig.update_layout(
-        width=1200,
-        height=500,
-        plot_bgcolor="white",
-        paper_bgcolor="white",
-        xaxis=dict(range=[0, 10], showgrid=False, zeroline=False, showticklabels=False),
-        yaxis=dict(range=[0, 5], showgrid=False, zeroline=False, showticklabels=False),
-        margin=dict(l=20, r=20, t=60, b=20),
-        title=dict(
-            text="Flujo de Datos — De la Transacción al Dashboard",
-            font=dict(size=22, color="#1a1a2e"),
-            x=0.5,
-        ),
+        width=W,
+        height=H,
+        plot_bgcolor="#FAFBFC",
+        paper_bgcolor="#FAFBFC",
+        xaxis=dict(range=[0, 14], showgrid=False, zeroline=False, showticklabels=False, fixedrange=True),
+        yaxis=dict(range=[0, 8.5], showgrid=False, zeroline=False, showticklabels=False, fixedrange=True),
+        margin=dict(l=15, r=15, t=15, b=15),
         font=dict(family="Arial, sans-serif"),
     )
 
-    # === Bloques principales ===
+    # === Fondo sutil para el área de procesamiento ===
+    fig.add_shape(
+        type="rect",
+        x0=0.3, y0=0.3, x1=13.7, y1=8.2,
+        fillcolor="white",
+        line=dict(color="#E0E4E8", width=1.5, dash="dot"),
+        layer="below",
+    )
+    fig.add_annotation(
+        x=7.0, y=8.0,
+        text="<b>SPARKFLOW DELTA PIPELINE</b>  —  Arquitectura Medallion",
+        font=dict(size=16, color="#4A5568"),
+        showarrow=False,
+    )
+
+    # =====================================================================
+    # FILA PRINCIPAL — Los 5 bloques en línea horizontal con amplio espacio
+    # =====================================================================
+    main_y = 5.0
+    block_h = 2.8
+    block_w = 2.1
+    gap = 0.7  # espacio entre bloques
+
     blocks = [
-        {"x": 1.2, "y": 2.8, "w": 1.6, "h": 2.0, "color": "#E8EAF6", "border": "#3F51B5",
-         "icon": "📥", "title": "Generación", "sub": "100M+ transacciones\nsintéticas con\nFaker + PySpark"},
-        {"x": 3.4, "y": 2.8, "w": 1.6, "h": 2.0, "color": "#FFF3E0", "border": "#CD7F32",
-         "icon": "🥉", "title": "Bronze", "sub": "Datos crudos\nPartición por fecha\nDelta Lake + ZSTD"},
-        {"x": 5.6, "y": 2.8, "w": 1.6, "h": 2.0, "color": "#F5F5F5", "border": "#9E9E9E",
-         "icon": "🥈", "title": "Silver", "sub": "Dedup + limpieza\nWindow functions\nBroadcast joins"},
-        {"x": 7.8, "y": 2.8, "w": 1.6, "h": 2.0, "color": "#FFFDE7", "border": "#FFC107",
-         "icon": "🥇", "title": "Gold", "sub": "5 reglas de fraude\nScore combinado\nMétricas agregadas"},
+        {
+            "x": 1.5, "color": "#EBF0FA", "border": "#4A6FA5",
+            "icon": "📥", "title": "GENERACIÓN",
+            "line1": "Faker + PySpark",
+            "line2": "100M+ registros",
+            "line3": "Datos sintéticos",
+            "badge": None,
+        },
+        {
+            "x": 4.3, "color": "#FDF0E2", "border": "#C77C3A",
+            "icon": "🥉", "title": "BRONZE",
+            "line1": "Ingesta cruda",
+            "line2": "Partición year/month",
+            "line3": "Delta Lake + ZSTD",
+            "badge": "RAW",
+        },
+        {
+            "x": 7.1, "color": "#EDF2F7", "border": "#718096",
+            "icon": "🥈", "title": "SILVER",
+            "line1": "Dedup + Cast + Filter",
+            "line2": "Window Functions",
+            "line3": "Broadcast Joins",
+            "badge": "CLEAN",
+        },
+        {
+            "x": 9.9, "color": "#FEFCE8", "border": "#B7950B",
+            "icon": "🥇", "title": "GOLD",
+            "line1": "5 Reglas de fraude",
+            "line2": "Score combinado",
+            "line3": "Métricas agregadas",
+            "badge": "BUSINESS",
+        },
+        {
+            "x": 12.5, "color": "#FEE2E2", "border": "#DC2626",
+            "icon": "📊", "title": "DASHBOARD",
+            "line1": "Streamlit + Plotly",
+            "line2": "KPIs interactivos",
+            "line3": "localhost:8501",
+            "badge": "VIZ",
+        },
     ]
 
     for b in blocks:
-        # Rectángulo
-        fig.add_shape(
-            type="rect",
-            x0=b["x"] - b["w"] / 2, y0=b["y"] - b["h"] / 2,
-            x1=b["x"] + b["w"] / 2, y1=b["y"] + b["h"] / 2,
-            fillcolor=b["color"],
-            line=dict(color=b["border"], width=2.5),
-            layer="below",
-        )
-        # Icono
+        cx = b["x"]
+        x0 = cx - block_w / 2
+        x1 = cx + block_w / 2
+        y0 = main_y - block_h / 2
+        y1 = main_y + block_h / 2
+
+        _draw_rounded_rect(fig, x0, y0, x1, y1, b["color"], b["border"], width=2.5, radius=0.12)
+
+        # Badge pequeño arriba a la derecha
+        if b["badge"]:
+            badge_w = 0.55
+            bx0 = x1 - badge_w - 0.08
+            bx1 = x1 - 0.08
+            by0 = y1 - 0.35
+            by1 = y1 - 0.05
+            _draw_rounded_rect(fig, bx0, by0, bx1, by1, b["border"], b["border"], width=0, radius=0.06)
+            fig.add_annotation(
+                x=(bx0 + bx1) / 2, y=(by0 + by1) / 2,
+                text=f"<b>{b['badge']}</b>",
+                font=dict(size=7, color="white"),
+                showarrow=False,
+            )
+
+        # Icono grande
         fig.add_annotation(
-            x=b["x"], y=b["y"] + 0.6, text=b["icon"],
-            font=dict(size=28), showarrow=False,
+            x=cx, y=main_y + 0.75,
+            text=b["icon"], font=dict(size=30), showarrow=False,
         )
+
         # Título
         fig.add_annotation(
-            x=b["x"], y=b["y"] + 0.15, text=f"<b>{b['title']}</b>",
-            font=dict(size=15, color="#1a1a2e"), showarrow=False,
+            x=cx, y=main_y + 0.2,
+            text=f"<b>{b['title']}</b>",
+            font=dict(size=13, color=b["border"]), showarrow=False,
         )
-        # Subtítulo
+
+        # Línea separadora
+        fig.add_shape(
+            type="line",
+            x0=x0 + 0.2, y0=main_y - 0.1, x1=x1 - 0.2, y1=main_y - 0.1,
+            line=dict(color=b["border"], width=0.8, dash="dot"),
+        )
+
+        # Tres líneas de detalle
         fig.add_annotation(
-            x=b["x"], y=b["y"] - 0.45, text=b["sub"],
-            font=dict(size=10, color="#555"), showarrow=False,
-            align="center",
+            x=cx, y=main_y - 0.45,
+            text=b["line1"], font=dict(size=10, color="#4A5568"), showarrow=False,
+        )
+        fig.add_annotation(
+            x=cx, y=main_y - 0.75,
+            text=b["line2"], font=dict(size=10, color="#4A5568"), showarrow=False,
+        )
+        fig.add_annotation(
+            x=cx, y=main_y - 1.05,
+            text=b["line3"], font=dict(size=10, color="#718096"), showarrow=False,
         )
 
-    # === Bloque Dashboard (más ancho, abajo a la derecha) ===
-    fig.add_shape(
-        type="rect",
-        x0=6.8, y0=0.1, x1=9.2, y1=1.3,
-        fillcolor="#FFEBEE", line=dict(color="#FF4B4B", width=2.5),
-        layer="below",
-    )
-    fig.add_annotation(x=8.0, y=0.95, text="📊", font=dict(size=28), showarrow=False)
-    fig.add_annotation(
-        x=8.0, y=0.55, text="<b>Streamlit Dashboard</b>",
-        font=dict(size=14, color="#1a1a2e"), showarrow=False,
-    )
-    fig.add_annotation(
-        x=8.0, y=0.25, text="localhost:8501",
-        font=dict(size=10, color="#FF4B4B"), showarrow=False,
-    )
-
-    # === Flechas entre bloques ===
-    arrows = [
-        {"x0": 2.0, "x1": 2.6, "y": 2.8, "label": ""},
-        {"x0": 4.2, "x1": 4.8, "y": 2.8, "label": ""},
-        {"x0": 6.4, "x1": 7.0, "y": 2.8, "label": ""},
+    # =====================================================================
+    # FLECHAS entre bloques — con etiquetas descriptivas
+    # =====================================================================
+    arrow_specs = [
+        {"x0": 2.55, "x1": 3.25, "color": "#4A6FA5", "label": "Delta Write"},
+        {"x0": 5.35, "x1": 6.05, "color": "#C77C3A", "label": "Transform"},
+        {"x0": 8.15, "x1": 8.85, "color": "#718096", "label": "Fraud Rules"},
+        {"x0": 10.95, "x1": 11.45, "color": "#B7950B", "label": "Read"},
     ]
 
-    for a in arrows:
+    for a in arrow_specs:
+        mid_x = (a["x0"] + a["x1"]) / 2
+
+        # Línea de la flecha
         fig.add_annotation(
-            x=a["x1"], y=a["y"],
-            ax=a["x0"], ay=a["y"],
+            x=a["x1"], y=main_y,
+            ax=a["x0"], ay=main_y,
             xref="x", yref="y", axref="x", ayref="y",
             showarrow=True,
-            arrowhead=3, arrowsize=1.5, arrowwidth=2.5,
-            arrowcolor="#3F51B5",
+            arrowhead=2, arrowsize=1.2, arrowwidth=3,
+            arrowcolor=a["color"],
         )
 
-    # Flecha Gold → Dashboard (curva hacia abajo)
-    fig.add_annotation(
-        x=8.0, y=1.3,
-        ax=7.8, ay=1.8,
-        xref="x", yref="y", axref="x", ayref="y",
-        showarrow=True,
-        arrowhead=3, arrowsize=1.5, arrowwidth=2.5,
-        arrowcolor="#FF4B4B",
-    )
+        # Etiqueta sobre la flecha
+        fig.add_annotation(
+            x=mid_x, y=main_y + 0.35,
+            text=f"<i>{a['label']}</i>",
+            font=dict(size=8, color=a["color"]),
+            showarrow=False,
+            bgcolor="white",
+            borderpad=2,
+        )
 
-    # === Etiquetas de proceso entre flechas ===
-    labels = [
-        {"x": 2.3, "y": 3.45, "text": "Delta Lake"},
-        {"x": 4.5, "y": 3.45, "text": "Dedup + Cast\n+ Features"},
-        {"x": 6.7, "y": 3.45, "text": "Fraud Rules\n+ Aggregate"},
+    # =====================================================================
+    # FILA INFERIOR — Tecnologías y puertos
+    # =====================================================================
+    tech_y = 1.8
+    techs = [
+        {"x": 1.5, "text": "PySpark 3.5\nFaker 28.0", "color": "#4A6FA5"},
+        {"x": 4.3, "text": "Delta Lake 3.2\nPartición por fecha", "color": "#C77C3A"},
+        {"x": 7.1, "text": "Window Functions\nBroadcast Join", "color": "#718096"},
+        {"x": 9.9, "text": "Z-Score + Reglas\nScore 0.0 → 1.0", "color": "#B7950B"},
+        {"x": 12.5, "text": "Streamlit 1.37\nPlotly 5.22", "color": "#DC2626"},
     ]
 
-    for lbl in labels:
+    for t in techs:
+        _draw_rounded_rect(
+            fig,
+            t["x"] - 0.9, tech_y - 0.4,
+            t["x"] + 0.9, tech_y + 0.4,
+            fill="#F7FAFC", border="#E2E8F0", width=1, radius=0.08,
+        )
         fig.add_annotation(
-            x=lbl["x"], y=lbl["y"], text=lbl["text"],
-            font=dict(size=9, color="#666"),
+            x=t["x"], y=tech_y,
+            text=t["text"],
+            font=dict(size=8.5, color=t["color"]),
             showarrow=False, align="center",
-            bgcolor="rgba(255,255,255,0.8)",
+        )
+
+        # Línea punteada vertical conectando bloque principal con tech
+        fig.add_shape(
+            type="line",
+            x0=t["x"], y0=main_y - block_h / 2,
+            x1=t["x"], y1=tech_y + 0.4,
+            line=dict(color="#CBD5E0", width=1, dash="dot"),
+        )
+
+    # =====================================================================
+    # FOOTER — Puertos
+    # =====================================================================
+    ports = [
+        {"x": 4.3, "text": "JupyterLab → localhost:8888", "icon": "📓"},
+        {"x": 7.1, "text": "Spark UI → localhost:4040", "icon": "⚡"},
+        {"x": 12.5, "text": "Dashboard → localhost:8501", "icon": "🌐"},
+    ]
+
+    for p in ports:
+        fig.add_annotation(
+            x=p["x"], y=0.7,
+            text=f"{p['icon']}  {p['text']}",
+            font=dict(size=9, color="#718096"),
+            showarrow=False,
+            bgcolor="#F7FAFC",
+            bordercolor="#E2E8F0",
+            borderwidth=1,
+            borderpad=4,
         )
 
     path = OUTPUT_DIR / "data_flow.png"
