@@ -47,6 +47,8 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v4
+      - name: Create .env from example
+        run: cp .env.example .env
       - name: Build Spark image
         run: docker build -f docker/spark/Dockerfile -t bigdata-fraud-spark .
       - name: Build Streamlit image
