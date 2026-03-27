@@ -22,15 +22,12 @@ def flag_high_zscore(df: DataFrame, zscore_threshold: float = 3.0) -> DataFrame:
 
 def flag_high_frequency(df: DataFrame, max_daily_txns: int = 20) -> DataFrame:
     """Marca cuentas con frecuencia de transacciones inusualmente alta."""
-    daily_counts = (
-        df
-        .groupBy("account_id", "transaction_date")
-        .agg(F.count("*").alias("daily_txn_count"))
+    daily_counts = df.groupBy("account_id", "transaction_date").agg(
+        F.count("*").alias("daily_txn_count")
     )
 
     high_freq_accounts = (
-        daily_counts
-        .where(F.col("daily_txn_count") > max_daily_txns)
+        daily_counts.where(F.col("daily_txn_count") > max_daily_txns)
         .select("account_id", "transaction_date")
         .withColumn("flag_high_frequency", F.lit(1))
     )
@@ -90,8 +87,7 @@ def apply_all_fraud_rules(
 ) -> DataFrame:
     """Aplica todas las reglas de fraude y calcula el score combinado."""
     return (
-        df
-        .transform(lambda d: flag_high_amount(d, amount_threshold))
+        df.transform(lambda d: flag_high_amount(d, amount_threshold))
         .transform(lambda d: flag_high_zscore(d, zscore_threshold))
         .transform(lambda d: flag_high_frequency(d, max_daily_txns))
         .transform(flag_night_transaction)
@@ -103,15 +99,16 @@ def apply_all_fraud_rules(
 def build_fraud_summary(df: DataFrame) -> DataFrame:
     """Genera resumen de fraude por merchant_category y mes."""
     return (
-        df
-        .groupBy("merchant_category", "year", "month")
+        df.groupBy("merchant_category", "year", "month")
         .agg(
             F.count("*").alias("total_transactions"),
             F.sum("is_fraud").alias("total_fraud"),
             F.round(F.avg("amount"), 2).alias("avg_amount"),
             F.round(F.avg("fraud_score"), 4).alias("avg_fraud_score"),
             F.sum(F.when(F.col("fraud_score") > 0.5, 1).otherwise(0)).alias("high_risk_count"),
-            F.round(F.sum(F.when(F.col("is_fraud") == 1, F.col("amount")).otherwise(0)), 2).alias("fraud_amount"),
+            F.round(F.sum(F.when(F.col("is_fraud") == 1, F.col("amount")).otherwise(0)), 2).alias(
+                "fraud_amount"
+            ),
         )
         .withColumn(
             "fraud_rate",

@@ -8,8 +8,7 @@ from pyspark.sql import SparkSession
 def spark():
     """Create a SparkSession for testing with Delta Lake support."""
     session = (
-        SparkSession.builder
-        .master("local[2]")
+        SparkSession.builder.master("local[2]")
         .appName("test-bigdata-fraud")
         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
         .config(

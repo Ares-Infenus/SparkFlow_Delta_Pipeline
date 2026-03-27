@@ -11,16 +11,27 @@ class TestGenerateTransactions:
     def test_has_required_columns(self, spark):
         df = generate_transactions(spark, num_records=100, num_partitions=2)
         required_cols = [
-            "transaction_id", "account_id", "merchant_id", "amount",
-            "is_fraud", "risk_score", "transaction_timestamp",
-            "merchant_category", "transaction_type", "channel", "country",
+            "transaction_id",
+            "account_id",
+            "merchant_id",
+            "amount",
+            "is_fraud",
+            "risk_score",
+            "transaction_timestamp",
+            "merchant_category",
+            "transaction_type",
+            "channel",
+            "country",
         ]
         for col in required_cols:
             assert col in df.columns, f"Missing column: {col}"
 
     def test_fraud_ratio_approximate(self, spark):
         df = generate_transactions(
-            spark, num_records=10000, fraud_ratio=0.012, num_partitions=2,
+            spark,
+            num_records=10000,
+            fraud_ratio=0.012,
+            num_partitions=2,
         )
         fraud_count = df.where(df.is_fraud == 1).count()
         fraud_rate = fraud_count / 10000

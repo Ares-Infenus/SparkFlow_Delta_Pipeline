@@ -79,11 +79,11 @@ def count_nulls(df):
 
 def show_table_info(df, table_name="DataFrame"):
     """Muestra información básica de un DataFrame."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"📊 {table_name}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"  Filas:    {df.count():,}")
     print(f"  Columnas: {len(df.columns)}")
     print(f"  Particiones: {df.rdd.getNumPartitions()}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
     df.printSchema()

@@ -19,16 +19,18 @@ from src.fraud_rules import (
 
 def _create_fraud_test_df(spark, data=None):
     """Helper para crear un DataFrame con columnas necesarias para reglas de fraude."""
-    schema = StructType([
-        StructField("transaction_id", StringType(), False),
-        StructField("account_id", StringType(), False),
-        StructField("amount", DoubleType(), True),
-        StructField("amount_zscore", DoubleType(), True),
-        StructField("is_fraud", IntegerType(), True),
-        StructField("is_night", IntegerType(), True),
-        StructField("merchant_risk_level", StringType(), True),
-        StructField("transaction_date", StringType(), True),
-    ])
+    schema = StructType(
+        [
+            StructField("transaction_id", StringType(), False),
+            StructField("account_id", StringType(), False),
+            StructField("amount", DoubleType(), True),
+            StructField("amount_zscore", DoubleType(), True),
+            StructField("is_fraud", IntegerType(), True),
+            StructField("is_night", IntegerType(), True),
+            StructField("merchant_risk_level", StringType(), True),
+            StructField("transaction_date", StringType(), True),
+        ]
+    )
 
     if data is None:
         data = [
@@ -90,8 +92,7 @@ class TestCalculateFraudScore:
         ]
         df = _create_fraud_test_df(spark, data)
         df = (
-            df
-            .withColumn("flag_high_amount", F.lit(0))
+            df.withColumn("flag_high_amount", F.lit(0))
             .withColumn("flag_high_zscore", F.lit(0))
             .withColumn("flag_high_frequency", F.lit(0))
             .withColumn("flag_night_txn", F.lit(0))
@@ -107,8 +108,7 @@ class TestCalculateFraudScore:
         ]
         df = _create_fraud_test_df(spark, data)
         df = (
-            df
-            .withColumn("flag_high_amount", F.lit(1))
+            df.withColumn("flag_high_amount", F.lit(1))
             .withColumn("flag_high_zscore", F.lit(1))
             .withColumn("flag_high_frequency", F.lit(1))
             .withColumn("flag_night_txn", F.lit(1))

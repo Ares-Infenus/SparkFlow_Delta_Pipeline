@@ -17,8 +17,11 @@ st.subheader("Comparación de Tiempos de Ejecución")
 
 benchmark_data = {
     "Etapa": [
-        "Ingesta Bronze", "Transformaciones Silver",
-        "Feature Engineering", "Reglas de Fraude", "Escritura Gold",
+        "Ingesta Bronze",
+        "Transformaciones Silver",
+        "Feature Engineering",
+        "Reglas de Fraude",
+        "Escritura Gold",
     ],
     "Sin Optimización (s)": [None, None, None, None, None],
     "Con Optimización (s)": [None, None, None, None, None],

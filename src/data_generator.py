@@ -10,9 +10,21 @@ from src.config import DEFAULT_NUM_RECORDS, FRAUD_RATIO, SEED
 
 # === Constantes para generación ===
 MERCHANT_CATEGORIES = [
-    "grocery", "gas_station", "restaurant", "online_shopping", "electronics",
-    "travel", "entertainment", "healthcare", "education", "utilities",
-    "clothing", "home_improvement", "automotive", "insurance", "subscription",
+    "grocery",
+    "gas_station",
+    "restaurant",
+    "online_shopping",
+    "electronics",
+    "travel",
+    "entertainment",
+    "healthcare",
+    "education",
+    "utilities",
+    "clothing",
+    "home_improvement",
+    "automotive",
+    "insurance",
+    "subscription",
 ]
 
 TRANSACTION_TYPES = ["purchase", "withdrawal", "transfer", "payment", "refund"]
@@ -60,10 +72,20 @@ def generate_transactions(
     base_df = spark.range(0, num_records, numPartitions=num_partitions)
 
     transactions_df = (
-        base_df
-        .withColumn("transaction_id", F.concat(F.lit("TXN_"), F.lpad(F.col("id").cast("string"), 12, "0")))
-        .withColumn("account_id", F.concat(F.lit("ACC_"), F.lpad((F.col("id") % num_accounts).cast("string"), 8, "0")))
-        .withColumn("merchant_id", F.concat(F.lit("MER_"), F.lpad((F.hash(F.col("id")) % num_merchants).cast("string").substr(2, 8), 8, "0")))
+        base_df.withColumn(
+            "transaction_id", F.concat(F.lit("TXN_"), F.lpad(F.col("id").cast("string"), 12, "0"))
+        )
+        .withColumn(
+            "account_id",
+            F.concat(F.lit("ACC_"), F.lpad((F.col("id") % num_accounts).cast("string"), 8, "0")),
+        )
+        .withColumn(
+            "merchant_id",
+            F.concat(
+                F.lit("MER_"),
+                F.lpad((F.hash(F.col("id")) % num_merchants).cast("string").substr(2, 8), 8, "0"),
+            ),
+        )
         # Timestamp con distribución uniforme en el rango
         .withColumn(
             "transaction_timestamp",
@@ -125,15 +147,18 @@ def generate_transactions(
         # Ajustar montos de fraude (tienden a ser más altos)
         .withColumn(
             "amount",
-            F.when(F.col("is_fraud") == 1, F.col("amount") * F.lit(3.5))
-            .otherwise(F.col("amount")),
+            F.when(F.col("is_fraud") == 1, F.col("amount") * F.lit(3.5)).otherwise(F.col("amount")),
         )
         # Score de riesgo simulado
         .withColumn(
             "risk_score",
             F.round(
-                F.when(F.col("is_fraud") == 1, F.abs(F.hash(F.col("id"), F.lit(8)).cast("double") / 2147483647.0) * 0.3 + 0.7)
-                .otherwise(F.abs(F.hash(F.col("id"), F.lit(9)).cast("double") / 2147483647.0) * 0.6 + 0.05),
+                F.when(
+                    F.col("is_fraud") == 1,
+                    F.abs(F.hash(F.col("id"), F.lit(8)).cast("double") / 2147483647.0) * 0.3 + 0.7,
+                ).otherwise(
+                    F.abs(F.hash(F.col("id"), F.lit(9)).cast("double") / 2147483647.0) * 0.6 + 0.05
+                ),
                 4,
             ),
         )
@@ -148,7 +173,9 @@ def generate_reference_tables(spark: SparkSession, num_merchants: int = 50_000):
     # Tabla de merchants
     merchants_df = (
         spark.range(0, num_merchants)
-        .withColumn("merchant_id", F.concat(F.lit("MER_"), F.lpad(F.col("id").cast("string"), 8, "0")))
+        .withColumn(
+            "merchant_id", F.concat(F.lit("MER_"), F.lpad(F.col("id").cast("string"), 8, "0"))
+        )
         .withColumn(
             "merchant_name",
             F.concat(F.lit("Merchant_"), F.col("id").cast("string")),

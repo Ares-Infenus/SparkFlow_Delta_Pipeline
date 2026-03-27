@@ -52,26 +52,43 @@ col_left, col_right = st.columns(2)
 
 with col_left:
     st.subheader("Transacciones por Categoría")
-    cat_data = df.groupby("merchant_category").agg(
-        total=("total_transactions", "sum"),
-    ).reset_index().sort_values("total", ascending=True)
+    cat_data = (
+        df.groupby("merchant_category")
+        .agg(
+            total=("total_transactions", "sum"),
+        )
+        .reset_index()
+        .sort_values("total", ascending=True)
+    )
 
     fig = px.bar(
-        cat_data, x="total", y="merchant_category",
-        orientation="h", title="Volumen por Categoría",
+        cat_data,
+        x="total",
+        y="merchant_category",
+        orientation="h",
+        title="Volumen por Categoría",
     )
     st.plotly_chart(fig, use_container_width=True)
 
 with col_right:
     st.subheader("Fraude por Mes")
-    month_data = df.groupby(["year", "month"]).agg(
-        fraud=("total_fraud", "sum"),
-        total=("total_transactions", "sum"),
-    ).reset_index()
-    month_data["period"] = month_data["year"].astype(str) + "-" + month_data["month"].astype(str).str.zfill(2)
+    month_data = (
+        df.groupby(["year", "month"])
+        .agg(
+            fraud=("total_fraud", "sum"),
+            total=("total_transactions", "sum"),
+        )
+        .reset_index()
+    )
+    month_data["period"] = (
+        month_data["year"].astype(str) + "-" + month_data["month"].astype(str).str.zfill(2)
+    )
 
     fig = px.line(
-        month_data, x="period", y="fraud",
-        title="Fraudes Detectados por Mes", markers=True,
+        month_data,
+        x="period",
+        y="fraud",
+        title="Fraudes Detectados por Mes",
+        markers=True,
     )
     st.plotly_chart(fig, use_container_width=True)

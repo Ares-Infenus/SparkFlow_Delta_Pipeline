@@ -42,14 +42,18 @@ filtered = df[df["merchant_category"].isin(categories)]
 # === Heatmap de fraude ===
 st.subheader("Tasa de Fraude por Categoría y Mes")
 pivot = filtered.pivot_table(
-    values="fraud_rate", index="merchant_category",
-    columns="month", aggfunc="mean",
+    values="fraud_rate",
+    index="merchant_category",
+    columns="month",
+    aggfunc="mean",
 ).fillna(0)
 
 fig = px.imshow(
-    pivot, title="Heatmap de Tasa de Fraude",
+    pivot,
+    title="Heatmap de Tasa de Fraude",
     labels=dict(x="Mes", y="Categoría", color="Tasa"),
-    aspect="auto", color_continuous_scale="Reds",
+    aspect="auto",
+    color_continuous_scale="Reds",
 )
 st.plotly_chart(fig, use_container_width=True)
 
@@ -63,8 +67,11 @@ fraud_by_cat = (
 )
 
 fig = px.bar(
-    fraud_by_cat, x="merchant_category", y="fraud_amount",
-    color="avg_score", title="Monto Total de Fraude por Categoría",
+    fraud_by_cat,
+    x="merchant_category",
+    y="fraud_amount",
+    color="avg_score",
+    title="Monto Total de Fraude por Categoría",
     color_continuous_scale="YlOrRd",
 )
 st.plotly_chart(fig, use_container_width=True)
