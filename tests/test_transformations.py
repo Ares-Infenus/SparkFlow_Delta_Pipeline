@@ -1,7 +1,5 @@
 """Tests para funciones de transformación."""
 
-from datetime import datetime
-
 from pyspark.sql import functions as F
 from pyspark.sql.types import (
     DoubleType,
@@ -9,7 +7,6 @@ from pyspark.sql.types import (
     StringType,
     StructField,
     StructType,
-    TimestampType,
 )
 
 from src.transformations import (

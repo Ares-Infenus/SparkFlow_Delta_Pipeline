@@ -1,14 +1,12 @@
 """Generador de datos sintéticos de transacciones bancarias a escala."""
 
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 
-from pyspark.sql import SparkSession
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql import types as T
 
 from src.config import DEFAULT_NUM_RECORDS, FRAUD_RATIO, SEED
-
 
 # === Constantes para generación ===
 MERCHANT_CATEGORIES = [
@@ -34,7 +32,7 @@ def generate_transactions(
     fraud_ratio: float = FRAUD_RATIO,
     seed: int = SEED,
     num_partitions: int = 200,
-) -> "DataFrame":
+) -> DataFrame:
     """
     Genera un DataFrame de transacciones sintéticas a escala.
 

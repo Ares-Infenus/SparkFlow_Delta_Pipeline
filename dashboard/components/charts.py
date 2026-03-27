@@ -2,7 +2,6 @@
 
 import plotly.express as px
 import plotly.graph_objects as go
-import pandas as pd
 
 
 def create_kpi_indicator(value, title, reference=None, prefix="", suffix=""):

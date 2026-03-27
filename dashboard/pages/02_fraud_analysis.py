@@ -1,9 +1,10 @@
 """Página de análisis de fraude detallado."""
 
-import streamlit as st
+from pathlib import Path
+
 import pandas as pd
 import plotly.express as px
-from pathlib import Path
+import streamlit as st
 
 st.header("Análisis de Fraude Detallado")
 
